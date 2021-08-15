@@ -13,6 +13,9 @@
 #include <QGridLayout>
 #include <QDebug>
 #include <QMessageBox>
+#include <QThread>
+#include <QMutexLocker>
+#include <QMutex>
 
 class MainWindow : public QMainWindow
 {
@@ -21,11 +24,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QLabel *label1[6];
 
 private:
     QSerialPort *serialPort;
-    QTextBrowser *textBrowser;
-    QTextEdit *textEdit;
+    //QTextBrowser *textBrowser;
+    //QTextEdit *textEdit;
     QLabel *label[5];
     QPushButton *pushButton[2];
     QComboBox *comboBox[5];
@@ -46,6 +50,8 @@ private:
 private slots:
     void sendPushButtonClicked();
     void openSerialPortPushButtonClicked();
-    void serialPortReadyRead();
+    //void serialPortReadyRead();
 };
+
+
 #endif // MAINWINDOW_H

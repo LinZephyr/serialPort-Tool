@@ -20,8 +20,8 @@ void MainWindow::layoutInit()
     this->resize(800, 480);
 
     serialPort = new QSerialPort(this);
-    textBrowser = new QTextBrowser();
-    textEdit = new QTextEdit();
+    //textBrowser = new QTextBrowser();
+    //textEdit = new QTextEdit();
     vboxLayout = new QVBoxLayout();
     funcWidget = new QWidget();
     mainWidget = new QWidget();
@@ -51,7 +51,7 @@ void MainWindow::layoutInit()
     }
 
     QList <QString> list2;
-    list2 << "发送" << "打开串口";
+    list2 << "开始测试" << "打开串口";
 
     for(int i=0; i<2; i++) {
         pushButton[i] = new QPushButton(list2[i]);
@@ -60,20 +60,39 @@ void MainWindow::layoutInit()
     }
     pushButton[0]->setEnabled(false);
 
-    vboxLayout->addWidget(textBrowser);
-    vboxLayout->addWidget(textEdit);
+    QList <QString> list3;
+    list3<<"重启"<<"容触版本号"<<"获取容触diff值"<<"容触diff值"<<"启动容触中断检测"<<"容触中断检测结果";
+    for(int i=0; i<6; i++) {
+        label1[i] = new QLabel(list3[i]);
+        label1[i]->setMinimumSize(800, 10);
+        label1[i]->setSizePolicy(
+            QSizePolicy::Expanding,
+            QSizePolicy::Expanding
+            );
+        label1[i]->setStyleSheet("QLabel{background-color:rgb(200,101,102);}");
+        vboxLayout->addWidget(label1[i]);
+    }
+
+
+
+    //vboxLayout->addWidget(textBrowser);
+    //vboxLayout->addWidget(textEdit);
     funcWidget->setLayout(gridLayout);
     vboxLayout->addWidget(funcWidget);
 
     mainWidget->setLayout(vboxLayout);
     this->setCentralWidget(mainWidget);
 
+
     connect(pushButton[0], SIGNAL(clicked()),
             this, SLOT(sendPushButtonClicked()));
+
     connect(pushButton[1], SIGNAL(clicked()),
             this, SLOT(openSerialPortPushButtonClicked()));
+    /*
     connect(serialPort, SIGNAL(readyRead()),
             this, SLOT(serialPortReadyRead()));
+    */
 }
 
 void MainWindow::scanSerialPort()
@@ -125,11 +144,18 @@ void MainWindow::stopBitsItemInit()
     comboBox[4]->setCurrentIndex(0);
 }
 
+
 void MainWindow::sendPushButtonClicked()
 {
-    QByteArray data = textEdit->toPlainText().toUtf8();
-    serialPort->write(data);
+    //QByteArray data = textEdit->toPlainText().toUtf8();
+    //serialPort->write(data);
+
+    label1[0]->setStyleSheet("QLabel{background-color:rgb(34,139,34);}");
+    QThread::sleep(2);
+    label1[1]->setStyleSheet("QLabel{background-color:rgb(34,139,34);}");
+    QThread::sleep(2);
 }
+
 
 void MainWindow::openSerialPortPushButtonClicked()
 {
@@ -200,11 +226,16 @@ void MainWindow::openSerialPortPushButtonClicked()
             comboBox[i]->setEnabled(true);
         pushButton[1]->setText("打开串口");
         pushButton[0]->setEnabled(false);
+
+        for(int i=0; i<6; i++) {
+            label1[i]->setStyleSheet("QLabel{background-color:rgb(200,101,102);}");
+        }
     }
 }
-
+/*
 void MainWindow::serialPortReadyRead()
 {
     QByteArray buf = serialPort->readAll();
     textBrowser->insertPlainText(QString(buf));
 }
+*/
