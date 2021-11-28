@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -127,8 +128,23 @@ void MainWindow::stopBitsItemInit()
 
 void MainWindow::sendPushButtonClicked()
 {
-    QByteArray data = textEdit->toPlainText().toUtf8();
-    serialPort->write(data);
+    QString strdata = textEdit->toPlainText();
+    QByteArray hexdata;
+
+    bool ok = false;
+    unsigned char data = 0xFF;
+    QStringList list = strdata.split(" ");
+
+    for(int i = 0; i < list.count(); i++){
+        if(list.at(i) == " ")
+            continue;
+        if(list.at(i).isEmpty())
+            continue;
+        data = (char)list.at(i).toInt(&ok, 16);
+        hexdata.append(data);
+    }
+
+    serialPort->write(hexdata);
 }
 
 void MainWindow::openSerialPortPushButtonClicked()
@@ -205,6 +221,26 @@ void MainWindow::openSerialPortPushButtonClicked()
 
 void MainWindow::serialPortReadyRead()
 {
-    QByteArray buf = serialPort->readAll();
-    textBrowser->insertPlainText(QString(buf));
+    QThread::msleep(50);
+    QByteArray hexdata = serialPort->readAll();
+    QString asciidata;
+
+    if(hexdata.isEmpty()) {
+        return;
+    }
+
+    QString str;
+    for(int i = 0; i < hexdata.count(); i++){
+        QString s;
+        s.sprintf("%02X ", (uchar)hexdata.at(i));
+        str += s;
+    }
+    asciidata = str;
+
+    QString ts = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    QString timeStrLine="[" + ts + "]";
+    QString tmpstr = "[ " + QString::number(hexdata.count(), 10) + " ]: ";
+    QString content = timeStrLine + tmpstr + asciidata + "\n\r";
+
+    textBrowser->insertPlainText(content);
 }

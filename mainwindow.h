@@ -13,6 +13,7 @@
 #include <QGridLayout>
 #include <QDebug>
 #include <QMessageBox>
+#include <QThread>
 
 class MainWindow : public QMainWindow
 {
