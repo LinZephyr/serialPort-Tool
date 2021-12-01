@@ -75,6 +75,9 @@ void MainWindow::layoutInit()
             this, SLOT(openSerialPortPushButtonClicked()));
     connect(serialPort, SIGNAL(readyRead()),
             this, SLOT(serialPortReadyRead()));
+
+    serialport_timeout = new QTimer(this);
+    connect(serialport_timeout, SIGNAL(timeout()), this, SLOT(serialportTimeout()));
 }
 
 void MainWindow::scanSerialPort()
@@ -95,7 +98,7 @@ void MainWindow::baudRateItemInit()
     for(int i=0; i<11; i++) {
         comboBox[1]->addItem(list[i]);
     }
-    comboBox[1]->setCurrentIndex(7);
+    comboBox[1]->setCurrentIndex(3);
 }
 
 void MainWindow::dataBitsItemInit()
@@ -219,28 +222,35 @@ void MainWindow::openSerialPortPushButtonClicked()
     }
 }
 
-void MainWindow::serialPortReadyRead()
+void MainWindow::serialportTimeout()
 {
-    QThread::msleep(50);
-    QByteArray hexdata = serialPort->readAll();
     QString asciidata;
 
-    if(hexdata.isEmpty()) {
+    if(serialport_hexdata.isEmpty()) {
         return;
     }
 
     QString str;
-    for(int i = 0; i < hexdata.count(); i++){
+    for(int i = 0; i < serialport_hexdata.count(); i++){
         QString s;
-        s.sprintf("%02X ", (uchar)hexdata.at(i));
+        s.sprintf("%02X ", (uchar)serialport_hexdata.at(i));
         str += s;
     }
     asciidata = str;
 
-    QString ts = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    QString ts = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
     QString timeStrLine="[" + ts + "]";
-    QString tmpstr = "[ " + QString::number(hexdata.count(), 10) + " ]: ";
+    QString tmpstr = "[ " + QString::number(serialport_hexdata.count(), 10) + " ]: ";
     QString content = timeStrLine + tmpstr + asciidata + "\n\r";
 
+    serialport_hexdata.clear();
     textBrowser->insertPlainText(content);
+}
+
+void MainWindow::serialPortReadyRead()
+{
+    serialport_hexdata.append(serialPort->readAll());
+
+    serialport_timeout->stop();
+    serialport_timeout->start(10);
 }

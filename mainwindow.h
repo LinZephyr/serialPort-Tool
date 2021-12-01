@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QThread>
+#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -37,6 +38,9 @@ private:
     QWidget *mainWidget;
     QWidget *funcWidget;
 
+    QTimer *serialport_timeout;
+    QByteArray serialport_hexdata;
+
     void layoutInit();
     void scanSerialPort();
     void baudRateItemInit();
@@ -48,5 +52,6 @@ private slots:
     void sendPushButtonClicked();
     void openSerialPortPushButtonClicked();
     void serialPortReadyRead();
+    void serialportTimeout();
 };
 #endif // MAINWINDOW_H
